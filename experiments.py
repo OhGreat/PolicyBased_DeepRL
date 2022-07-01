@@ -2,6 +2,8 @@ import time
 import argparse
 import torch
 import gym
+from os import makedirs
+from os.path import exists
 from utils import *
 from Model import *
 from Algorithms.Reinforce import Reinforce
@@ -13,7 +15,6 @@ def main():
     # parse model parameters
     parser.add_argument('-evaluate', action='store_true')
     parser.add_argument('-run_name', action='store', type=str, default=None)
-    parser.add_argument('-quantum', action='store_true')
     parser.add_argument('-optimizer', action='store', type=str, default='adam')
     parser.add_argument('-optim_lr', action='store', type=float, default=1e-3)
     parser.add_argument('-optimizer_v', action='store', type=str, default='adam')
@@ -38,12 +39,16 @@ def main():
                     'rms': torch.optim.RMSprop
                 }
 
+    # TODO: parametrize environment
     env = gym.make("CartPole-v1")
 
-    run_name = "exp_results/" + args.run_name
+    res_dir = "exp_results/"
+    if not exists(res_dir):
+        makedirs(res_dir)
+    run_name = res_dir + args.run_name
     optimum = 500
 
-    n_repetitions = 3
+    n_repetitions = 3  # TODO: make it a param 
 
     # instantiate plot and add optimum line
     plot = LearningCurvePlot(title = args.alg.upper())
@@ -53,7 +58,7 @@ def main():
     curve = None
     for i in range(n_repetitions):
         # instantiate models
-        mlp_policy = MLP(4, 2, False, quantum=args.quantum)
+        mlp_policy = MLP(4, 2, False)
         opt_policy = optimizers[args.optimizer](mlp_policy.parameters(), args.optim_lr)
         if args.baseline or args.alg == "AC_bootstrap":
             mlp_value = MLP(4, 2, True)
@@ -89,7 +94,10 @@ def main():
     plot.add_curve(curve, label=r"label")
 
     # save plot
-    plot.save("plots/" + args.run_name + ".png")
+    plots_dir = "plots/"
+    if not exists(plots_dir):
+        makedirs(plots_dir)
+    plot.save(plots_dir + args.run_name + ".png")
 
     if args.evaluate:
         done = False

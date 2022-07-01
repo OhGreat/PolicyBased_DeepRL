@@ -33,7 +33,6 @@ from the main directory, along with the following possible arguments:
 - `-optim_lr`: learning rate of the optimizer.
 - `-optimizer_v`: choose an optimizer between "adam", "sgd" and "rms" for the value net.
 - `-optim_lr_v`: learning rate of the optimizer_v.
-- `-quantum`: use a quantum layer as an output layer for the policy network.
 - `-alg`: choose between "reinforce" and "AC_bootstrap".
 - `-epochs`: number of epochs (i.e. updates).
 - `-traces`: number of traces per epoch (averaged in a single update).
@@ -54,4 +53,3 @@ along with the following arguments:
 - `-run_name`, name of your choice for the configuration.
 - `-render`, to visualize the environment.
 - `-device`, to indicate where to execute the computations (e.g. "cpu" or "cuda").
-- `-quantum`, to use a quantum layer as an output layer for the policy network.

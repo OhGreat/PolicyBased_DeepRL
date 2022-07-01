@@ -3,10 +3,7 @@ import torch
 import numpy as np
 from torch.distributions import Categorical
 from Model import argmax
-from ES_base_framework.EA import EA
-import ES_base_framework.Recombination as Recombination
-import ES_base_framework.Mutation as Mutation
-import ES_base_framework.Selection as Selection
+from EA_components import Recombination, Mutation, Selection, EA
 
 
 class PolicyBased:
@@ -69,13 +66,13 @@ class PolicyBased:
                 if self.use_es in [0, 1]:
                     # es on value model
                     print("Value net mode")
-                    es_value = EA(self, "value", True, 50, 2, 4, n_params_v, es_rec, es_mut, es_sel, es_eval, 1)
+                    es_value, _ = EA(self, "value", True, 50, 2, 4, n_params_v, es_rec, es_mut, es_sel, es_eval, 1)
                     l_p, l_v, r = es_value.run()
 
                 if self.use_es == 1:
                     # es on policy model
                     print("Policy net mode")
-                    es_policy = EA(self, "policy", True, 50, 2, 4, n_params_p, es_rec, es_mut, es_sel, es_eval, 1)
+                    es_policy, _ = EA(self, "policy", True, 50, 2, 4, n_params_p, es_rec, es_mut, es_sel, es_eval, 1)
                     l_p, l_v, r = es_policy.run()
                 print("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
             # reinforcement learning

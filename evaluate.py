@@ -9,11 +9,10 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument("-run_name", action="store", type=str, default=None)
     parser.add_argument('-render', action='store_true')
-    parser.add_argument('-quantum', action='store_true')
     parser.add_argument('-device', action='store', type=str, default="cuda")
     args = parser.parse_args()
 
-    mlp_policy = MLP(4, 2, quantum=args.quantum).to(args.device)
+    mlp_policy = MLP(4, 2).to(args.device)
 
     print(f"Loading weights from of {args.run_name}")
     try:

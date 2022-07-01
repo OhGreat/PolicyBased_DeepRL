@@ -1,7 +1,6 @@
 import torch
 from torch import nn
 import numpy as np
-from Quantum import Hybrid
 
 def argmax(x):
     ''' Own variant of np.argmax with random tie breaking '''
@@ -14,9 +13,8 @@ class MLP(nn.Module):
     """ Simple multi-layer perceptron
         Can be used as policy or value network
     """
-    def __init__(self, input_dim, output_dim, value=False, quantum=False, shots=50):
+    def __init__(self, input_dim, output_dim, value=False, shots=50):
         super(MLP, self).__init__()
-        self.quantum = quantum
         self.value = value
 
         self.hidden_layers = nn.Sequential(
@@ -32,21 +30,13 @@ class MLP(nn.Module):
                 nn.ReLU()
             )
         else:
-            if self.quantum:
-                self.quantum_layer = nn.Sequential(
-                    nn.Linear(8, output_dim),
-                    Hybrid(int(np.log2(output_dim)), shots), 
-                    nn.Softmax(dim=0)
-                )
-            else:
-                self.policy_layer = nn.Sequential(
-                    nn.Linear(8, output_dim),
-                    nn.Softmax(dim=1)
+            self.policy_layer = nn.Sequential(
+                nn.Linear(8, output_dim),
+                nn.Softmax(dim=1)
                 )
 
     def forward(self, x, device):
         x = torch.tensor(x, dtype=torch.float32, device=device).unsqueeze(0)
         x = self.hidden_layers(x)
         if self.value : return self.value_layer(x)[0]
-        elif self.quantum: return self.quantum_layer(x)
         else: return self.policy_layer(x)
