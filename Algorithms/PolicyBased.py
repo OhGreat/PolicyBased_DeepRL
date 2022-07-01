@@ -88,7 +88,7 @@ class PolicyBased:
                 best_r_ep = rewards[-1]
                 print("New max number of steps in episode:", best_r_ep)
                 if self.run_name is not None:
-                    if best_r_ep == 500:
+                    if best_r_ep == 500:  # TODO: parametrize
                         curr_avg = self.evaluate(25)
                         if curr_avg > best_avg:
                             save = True
@@ -124,11 +124,20 @@ class PolicyBased:
         return np.mean(r_ep)
 
     def select_action(self, s):
-        # get the probability distribution of the actions
-        dist = self.model.forward(s, self.device)
-        # sample action from distribution
-        dist = Categorical(dist)
-        action = dist.sample()
+        if self.env.action_space.__class__.__name__ == "Discrete":
+            # get the probability distribution of the actions
+            dist = self.model.forward(s, self.device)
+            # sample action from distribution
+            dist = Categorical(dist)
+            action = dist.sample()
+        elif self.env.action_space.__class__.__name__ == "Box":
+            # get the probability distribution of the actions
+            dist = self.model.forward(s, self.device)
+            # sample action from distribution
+            dist = Categorical(dist)
+            action = dist.sample()
+        else:
+            exit(f"{self.env.action_space.__class__.__name__} action space not yet implemented")
         #return action and actions distribution
         return action, dist
 

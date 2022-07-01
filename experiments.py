@@ -40,15 +40,28 @@ def main():
                 }
 
     # TODO: parametrize environment
-    env = gym.make("CartPole-v1")
+    env = gym.make("BipedalWalker-v3") # "CartPole-v1" "LunarLander-v2" "BipedalWalker-v3"
+
+    # environment specific parameters
+    n_observations = np.sum([dim for dim in env.observation_space.shape])
+    if env.action_space.__class__.__name__ == "Discrete":
+        n_actions = env.action_space.n
+        print("Discrete")
+    elif env.action_space.__class__.__name__ == "Box":
+        n_actions = sum(env.action_space._shape)
+        print("Box")
+    else:
+        exit(f"{env.action_space.__class__.__name__} action space not yet implemented")
+
+    print(f"Environment observations: {n_observations}, number of actions: {n_actions}")
 
     res_dir = "exp_results/"
     if not exists(res_dir):
         makedirs(res_dir)
     run_name = res_dir + args.run_name
-    optimum = 500
+    optimum = 500 # TODO: parametrize (also in PolicyBased.py)
 
-    n_repetitions = 3  # TODO: make it a param 
+    n_repetitions = 1  # TODO: parametrize
 
     # instantiate plot and add optimum line
     plot = LearningCurvePlot(title = args.alg.upper())
@@ -58,10 +71,10 @@ def main():
     curve = None
     for i in range(n_repetitions):
         # instantiate models
-        mlp_policy = MLP(4, 2, False)
+        mlp_policy = MLP(n_observations, n_actions, False)
         opt_policy = optimizers[args.optimizer](mlp_policy.parameters(), args.optim_lr)
         if args.baseline or args.alg == "AC_bootstrap":
-            mlp_value = MLP(4, 2, True)
+            mlp_value = MLP(n_observations, n_actions, True)
             opt_value = optimizers[args.optimizer_v](mlp_value.parameters(), args.optim_lr_v)
         else:
             mlp_value = None
@@ -85,7 +98,7 @@ def main():
             curve = rewards
         else:
             curve += rewards
-            
+
     # average curve over repetitions
     curve /= n_repetitions
     
